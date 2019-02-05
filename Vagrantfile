@@ -1,18 +1,40 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-def install_deps(node)
+def install_deps!(node)
   node.vm.provision "shell", inline: "cp -f /vagrant/hosts /etc/hosts"
-  # Nodate that not all items are needed by all hosts, but every item is required by at least 2
-  # except for vim and the the_silver_searcher.x86_64 
-  node.vm.provision "shell", inline: "yum install -y vim the_silver_searcher expat libedit postgresql-server postgresql-contrib python sendmail sudo tcl tk libical unzip zip perl-Env perl-Switch hwloc libICE libSM"
+  deps = [
+    'expat',
+    'hwloc',
+    'libedit',
+    'libical',
+    'libICE',
+    'libSM',
+    'perl-Env',
+    'perl-Switch',
+    'postgresql-contrib',
+    'postgresql-server',
+    'python',
+    'sendmail',
+    'sudo',
+    'tcl',
+    'tk',
+    'unzip',
+
+    'the_silver_searcher', # *
+    'vim',  # *
+    'zip'
+
+    # * purely for convenience
+  ]
+  node.vm.provision "shell", inline: "yum install -y #{deps.join(' ')}"
 end
 
-def add_ood_user(node)
+def add_ood_user!(node)
   node.vm.provision "shell", inline: <<-SHELL
-  groupadd ood
-  useradd --create-home --gid ood ood
-  echo -n "ood" | passwd --stdin ood
+    groupadd ood
+    useradd --create-home --gid ood ood
+    echo -n "ood" | passwd --stdin ood
   SHELL
 end
 
