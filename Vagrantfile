@@ -55,7 +55,16 @@ Vagrant.configure(2) do |config|
     # ood.vm.network "forwarded_port", guest: 80, host: 8080
     ood.vm.network "private_network", ip: "10.0.0.100"
     ood.vm.provision "shell", inline: "hostnamectl set-hostname ood"
-    install_deps(ood)
+    install_deps!(ood)
+    ood.vm.provision "shell", inline: <<-SHELL
+      if [[ ! -e /vagrant/pbspro_19.1.1.centos7.zip ]]; then
+        (
+          cd /vagrant || exit 1
+          curl https://github.com/PBSPro/pbspro/releases/download/v19.1.1/pbspro_19.1.1.centos7.zip -o pbspro_19.1.1.centos7.zip
+          unzip pbspro_19.1.1.centos7.zip
+        )
+      fi
+    SHELL
     ood.vm.provision "shell", inline: "(cd /vagrant/pbspro_19.1.1.centos7 && rpm -i pbspro-client-19.1.1-0.x86_64.rpm)"
     ood.vm.provision "shell", inline: "perl -pi -e 's[CHANGE_THIS_TO_PBS_PRO_SERVER_HOSTNAME][head]' /etc/pbs.conf"
   end
@@ -64,7 +73,7 @@ Vagrant.configure(2) do |config|
   config.vm.define "pbscompute", primary: false, autostart: true do |pbscompute|
     pbscompute.vm.network "private_network", ip: "10.0.0.102"
     pbscompute.vm.provision "shell", inline: "hostnamectl set-hostname pbscompute"
-    install_deps(pbscompute)
+    install_deps!(pbscompute)
     pbscompute.vm.provision "shell", inline: <<-SHELL
       (cd /vagrant/pbspro_19.1.1.centos7 && rpm -i pbspro-execution-19.1.1-0.x86_64.rpm)
       perl -pi -e 's[CHANGE_THIS_TO_PBS_PRO_SERVER_HOSTNAME][head]' /etc/pbs.conf
@@ -78,7 +87,7 @@ Vagrant.configure(2) do |config|
   config.vm.define "head", primary: false, autostart: true do |head|
     head.vm.network "private_network", ip: "10.0.0.101"
     head.vm.provision "shell", inline: "hostnamectl set-hostname head"
-    install_deps(head)
+    install_deps!(head)
     head.vm.provision "shell", inline: <<-SHELL
       (cd /vagrant/pbspro_19.1.1.centos7 && rpm -i pbspro-server-19.1.1-0.x86_64.rpm)
       systemctl enable pbs --now
