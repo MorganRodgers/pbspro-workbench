@@ -60,7 +60,7 @@ Vagrant.configure(2) do |config|
       if [[ ! -e /vagrant/pbspro_19.1.1.centos7.zip ]]; then
         (
           cd /vagrant || exit 1
-          curl https://github.com/PBSPro/pbspro/releases/download/v19.1.1/pbspro_19.1.1.centos7.zip -o pbspro_19.1.1.centos7.zip
+          curl -L https://github.com/PBSPro/pbspro/releases/download/v19.1.1/pbspro_19.1.1.centos7.zip -o pbspro_19.1.1.centos7.zip
           unzip pbspro_19.1.1.centos7.zip
         )
       fi
